@@ -9,6 +9,7 @@ import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.Movie;
 import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 import com.redevstudios.cineone.cineone.ui.viewholder.MovieViewHolder;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -43,4 +44,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
         return this.movieList.size();
     }
 
+    @Override
+    public void onViewRecycled(MovieViewHolder holder) {
+        super.onViewRecycled(holder);
+    }
 }
