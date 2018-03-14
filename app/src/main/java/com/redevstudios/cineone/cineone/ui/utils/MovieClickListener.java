@@ -8,4 +8,5 @@ import com.redevstudios.cineone.cineone.model.Movie;
 
 public interface MovieClickListener {
     void onMovieClick(Movie movie);
+
 }

@@ -60,4 +60,5 @@ public class MovieActivity extends AppCompatActivity {
                 "w500" +
                 imagePath;
     }
+
 }

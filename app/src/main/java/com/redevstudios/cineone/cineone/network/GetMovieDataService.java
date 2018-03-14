@@ -13,4 +13,5 @@ import retrofit2.http.Query;
 public interface GetMovieDataService {
     @GET("movie/popular")
     Call<MoviePageResult> getMovieData(@Query("page") int page, @Query("api_key") String userkey);
+
 }

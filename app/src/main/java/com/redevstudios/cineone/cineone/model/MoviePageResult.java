@@ -56,4 +56,5 @@ public class MoviePageResult {
     public void setMovieResult(ArrayList<Movie> movieResult) {
         this.movieResult = movieResult;
     }
+
 }

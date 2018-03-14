@@ -43,5 +43,4 @@ public class MovieViewHolder extends RecyclerView.ViewHolder {
                 "w500" +
                 moviePath;
     }
-
 }
