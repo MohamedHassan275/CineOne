@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.redevstudios.cineone.cineone.R;
 import com.squareup.picasso.Picasso;
 
-import static com.redevstudios.cineone.cineone.ui.viewholder.MovieViewHolder.getScreenWidth;
+import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.getScreenWidth;
 
 public class MovieActivity extends AppCompatActivity {
 
