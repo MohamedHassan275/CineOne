@@ -26,12 +26,13 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
+    private int totalPages;
     private GetMovieDataService movieDataService;
     private Call<MoviePageResult> call;
     private RecyclerView recyclerView;
-    private EndlessRecyclerViewScrollListener scrollListener;
-    List<Movie> movieResults;
-    MovieAdapter movieAdapter;
+    private List<Movie> movieResults;
+    private MovieAdapter movieAdapter;
+
 
 
     @Override
@@ -50,12 +51,14 @@ public class MainActivity extends AppCompatActivity {
 
         initRecylerView();
 
-        scrollListener = new EndlessRecyclerViewScrollListener(manager) {
+        EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(manager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                //TODO: Handle inputs of pages that exceed the total number of pages on the API
-                //TODO: Fix weird flickering when scrolling back to the top of the RecyclerView
-                loadNextPage(page + 1);
+                //COMPLETED: Handle inputs of pages that exceed the total number of pages on the API
+                //COMPLETED: Fix weird flickering when scrolling back to the top of the RecyclerView
+                if ((page + 1) <= totalPages) {
+                    loadNextPage(page + 1);
+                }
             }
         };
 
@@ -73,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
                 movieResults = response.body().getMovieResult();
+                totalPages = response.body().getTotalPages();
 
                 movieAdapter = new MovieAdapter(movieResults, new MovieClickListener() {
                     @Override
@@ -108,8 +112,12 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<MoviePageResult>() {
             @Override
             public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
-                movieResults.addAll(response.body().getMovieResult());
-                movieAdapter.notifyDataSetChanged();
+                List<Movie> movies = response.body().getMovieResult();
+                for(Movie movie : movies){
+                    movieResults.add(movie);
+                    movieAdapter.notifyItemInserted(movieResults.size() - 1);
+                }
+
             }
 
             @Override
@@ -124,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
     }
     public static int getScreenHeight() {
         return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
+
+    public static String movieImagePathBuilder(String imagePath) {
+        return "https://image.tmdb.org/t/p/" +
+                "w500" +
+                imagePath;
     }
 
 }

@@ -11,6 +11,7 @@ import com.redevstudios.cineone.cineone.R;
 import com.squareup.picasso.Picasso;
 
 import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.getScreenWidth;
+import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieImagePathBuilder;
 
 public class MovieActivity extends AppCompatActivity {
 
@@ -55,10 +56,5 @@ public class MovieActivity extends AppCompatActivity {
         Picasso.with(this).load(movieImagePathBuilder(backdropPath)).resize(getScreenWidth(), 0).into(movieBackdrop);
     }
 
-    private String movieImagePathBuilder(String imagePath) {
-        return "https://image.tmdb.org/t/p/" +
-                "w500" +
-                imagePath;
-    }
 
 }
