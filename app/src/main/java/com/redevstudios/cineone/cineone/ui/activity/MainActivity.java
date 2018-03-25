@@ -29,7 +29,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
-    private static int totalPages, currentSortMode;
+    private static int totalPages;
+    private static int currentSortMode = 1;
     private Call<MoviePageResult> call;
     private RecyclerView recyclerView;
     private List<Movie> movieResults;
@@ -51,21 +52,18 @@ public class MainActivity extends AppCompatActivity {
         });
         recyclerView.setLayoutManager(manager);
 
-        loadPage(1, 1);
+        loadPage(1);
 
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(manager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 if ((page + 1) <= totalPages) {
-                    loadPage(currentSortMode,page + 1);
+                    loadPage(page + 1);
                 }
             }
         };
 
         recyclerView.addOnScrollListener(scrollListener);
-
-
-
     }
 
     @Override
@@ -81,22 +79,21 @@ public class MainActivity extends AppCompatActivity {
         //SortID 2 -> Top rated
         switch (item.getItemId()) {
             case R.id.sort_by_popularity:
-                loadPage(1, 1);
                 currentSortMode = 1;
-                return true;
+                break;
             case R.id.sort_by_top:
-                loadPage(2, 1);
                 currentSortMode = 2;
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+                break;
         }
+        loadPage(1);
+        return super.onOptionsItemSelected(item);
+
     }
 
-    private void loadPage(int sortId, final int page) {
+    private void loadPage(final int page) {
         GetMovieDataService movieDataService = RetrofitInstance.getRetrofitInstance().create(GetMovieDataService.class);
 
-        switch(sortId){
+        switch(currentSortMode){
             case 1:
                 call = movieDataService.getPopularMovies(page, API_KEY);
                 break;
@@ -150,8 +147,8 @@ public class MainActivity extends AppCompatActivity {
     public static int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
-    public static int getScreenHeight() {
-        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    public static int getMeasuredPosterHeight(int width) {
+        return (int) (width * 1.5f);
     }
 
     public static String movieImagePathBuilder(String imagePath) {
