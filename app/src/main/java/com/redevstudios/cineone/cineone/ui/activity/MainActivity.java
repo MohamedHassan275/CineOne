@@ -7,6 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.redevstudios.cineone.cineone.R;
@@ -26,8 +29,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
-    private int totalPages;
-    private GetMovieDataService movieDataService;
+    private static int totalPages, currentSortMode;
     private Call<MoviePageResult> call;
     private RecyclerView recyclerView;
     private List<Movie> movieResults;
@@ -49,15 +51,13 @@ public class MainActivity extends AppCompatActivity {
         });
         recyclerView.setLayoutManager(manager);
 
-        initRecylerView();
+        loadPage(1, 1);
 
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(manager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                //COMPLETED: Handle inputs of pages that exceed the total number of pages on the API
-                //COMPLETED: Fix weird flickering when scrolling back to the top of the RecyclerView
                 if ((page + 1) <= totalPages) {
-                    loadNextPage(page + 1);
+                    loadPage(currentSortMode,page + 1);
                 }
             }
         };
@@ -68,54 +68,74 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void initRecylerView() {
-        movieDataService = RetrofitInstance.getRetrofitInstance().create(GetMovieDataService.class);
-        call = movieDataService.getMovieData(1, API_KEY);
-
-        call.enqueue(new Callback<MoviePageResult>() {
-            @Override
-            public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
-                movieResults = response.body().getMovieResult();
-                totalPages = response.body().getTotalPages();
-
-                movieAdapter = new MovieAdapter(movieResults, new MovieClickListener() {
-                    @Override
-                    public void onMovieClick(Movie movie) {
-                        Log.wtf("click", "I was clicked");
-                        Intent intent = new Intent(MainActivity.this, MovieActivity.class);
-                        intent.putExtra("movie_title", movie.getTitle());
-                        intent.putExtra("movie_vote_average", movie.getVoteAverage());
-                        intent.putExtra("movie_vote_count", movie.getVoteCount());
-                        intent.putExtra("movie_overview", movie.getOverview());
-                        intent.putExtra("movie_release_date", movie.getReleaseDate());
-                        intent.putExtra("movie_poster_path", movie.getPosterPath());
-                        intent.putExtra("movie_backdrop_path", movie.getBackdropPath());
-                        startActivity(intent);
-                    }
-                });
-
-                recyclerView.setAdapter(movieAdapter);
-
-            }
-
-            @Override
-            public void onFailure(Call<MoviePageResult> call, Throwable t) {
-                Toast.makeText(MainActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
-            }
-        });
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.sort_menu, menu);
+        return true;
     }
 
-    private void loadNextPage(int pageNo) {
-        movieDataService = RetrofitInstance.getRetrofitInstance().create(GetMovieDataService.class);
-        call = movieDataService.getMovieData(pageNo, API_KEY);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //SortID 1 -> Popularity
+        //SortID 2 -> Top rated
+        switch (item.getItemId()) {
+            case R.id.sort_by_popularity:
+                loadPage(1, 1);
+                currentSortMode = 1;
+                return true;
+            case R.id.sort_by_top:
+                loadPage(2, 1);
+                currentSortMode = 2;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void loadPage(int sortId, final int page) {
+        GetMovieDataService movieDataService = RetrofitInstance.getRetrofitInstance().create(GetMovieDataService.class);
+
+        switch(sortId){
+            case 1:
+                call = movieDataService.getPopularMovies(page, API_KEY);
+                break;
+            case 2:
+                call = movieDataService.getTopRatedMovies(page, API_KEY);
+                break;
+        }
+
 
         call.enqueue(new Callback<MoviePageResult>() {
             @Override
             public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
-                List<Movie> movies = response.body().getMovieResult();
-                for(Movie movie : movies){
-                    movieResults.add(movie);
-                    movieAdapter.notifyItemInserted(movieResults.size() - 1);
+
+                if(page == 1) {
+                    movieResults = response.body().getMovieResult();
+                    totalPages = response.body().getTotalPages();
+
+                    movieAdapter = new MovieAdapter(movieResults, new MovieClickListener() {
+                        @Override
+                        public void onMovieClick(Movie movie) {
+                            Log.wtf("click", "I was clicked");
+                            Intent intent = new Intent(MainActivity.this, MovieActivity.class);
+                            intent.putExtra("movie_title", movie.getTitle());
+                            intent.putExtra("movie_vote_average", movie.getVoteAverage());
+                            intent.putExtra("movie_vote_count", movie.getVoteCount());
+                            intent.putExtra("movie_overview", movie.getOverview());
+                            intent.putExtra("movie_release_date", movie.getReleaseDate());
+                            intent.putExtra("movie_poster_path", movie.getPosterPath());
+                            intent.putExtra("movie_backdrop_path", movie.getBackdropPath());
+                            startActivity(intent);
+                        }
+                    });
+                    recyclerView.setAdapter(movieAdapter);
+                } else {
+                    List<Movie> movies = response.body().getMovieResult();
+                    for(Movie movie : movies){
+                        movieResults.add(movie);
+                        movieAdapter.notifyItemInserted(movieResults.size() - 1);
+                    }
                 }
 
             }
