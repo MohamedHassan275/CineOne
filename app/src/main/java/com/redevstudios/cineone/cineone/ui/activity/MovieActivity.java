@@ -15,7 +15,7 @@ import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieIma
 
 public class MovieActivity extends AppCompatActivity {
 
-    private TextView movieTitle;
+    private TextView movieTitle, movieOverview;
     private ImageView moviePoster, movieBackdrop;
 
     @Override
@@ -25,7 +25,7 @@ public class MovieActivity extends AppCompatActivity {
 
         movieTitle = findViewById(R.id.movie_activity_title);
         moviePoster = findViewById(R.id.movie_activity_poster);
-        movieBackdrop = findViewById(R.id.movie_activity_backdrop);
+        movieOverview = findViewById(R.id.movie_activity_overview);
 
         Intent intent = getIntent();
         String title = intent.getStringExtra("movie_title");
@@ -36,24 +36,14 @@ public class MovieActivity extends AppCompatActivity {
         String posterPath = intent.getStringExtra("movie_poster_path");
         String backdropPath = intent.getStringExtra("movie_backdrop_path");
 
-        populateActivity(title, posterPath, backdropPath);
-
-
-        Log.wtf("TITLE", title);
-        Log.wtf("OVERVIEW", overview);
-        Log.wtf("USER RATING", String.valueOf(userRating));
-        Log.wtf("USER RATING COUNT", String.valueOf(userRatingCount));
-        Log.wtf("RELEASE DATE", releaseDate);
-        Log.wtf("POSTER PATH", posterPath);
-
-
+        populateActivity(title, posterPath, overview);
 
     }
 
-    private void populateActivity(String title, String posterPath, String backdropPath){
+    private void populateActivity(String title, String posterPath, String overview){
         Picasso.with(this).load(movieImagePathBuilder(posterPath)).into(moviePoster);
         movieTitle.setText(title);
-        Picasso.with(this).load(movieImagePathBuilder(backdropPath)).resize(getScreenWidth(), 0).into(movieBackdrop);
+        movieOverview.setText(overview);
     }
 
 
