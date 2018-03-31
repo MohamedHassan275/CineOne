@@ -9,7 +9,6 @@ import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.Movie;
 import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 import com.redevstudios.cineone.cineone.ui.viewholder.MovieViewHolder;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -17,10 +16,11 @@ import java.util.List;
  * Created by Redouane on 3/10/2018.
  */
 
+@SuppressWarnings("ALL")
 public class MovieAdapter extends RecyclerView.Adapter<MovieViewHolder> {
 
-    private MovieClickListener movieClickListener;
-    private List<Movie> movieList;
+    private final MovieClickListener movieClickListener;
+    private final List<Movie> movieList;
 
     public MovieAdapter(List<Movie> movieList, MovieClickListener movieClickListener) {
         this.movieList = movieList;

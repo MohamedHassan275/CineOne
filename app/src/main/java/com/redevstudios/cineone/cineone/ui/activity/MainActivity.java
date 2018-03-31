@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
                     movieAdapter = new MovieAdapter(movieResults, new MovieClickListener() {
                         @Override
                         public void onMovieClick(Movie movie) {
-                            Log.wtf("click", "I was clicked");
                             Intent intent = new Intent(MainActivity.this, MovieActivity.class);
                             intent.putExtra("movie_title", movie.getTitle());
                             intent.putExtra("movie_vote_average", movie.getVoteAverage());

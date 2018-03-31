@@ -19,9 +19,10 @@ import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieIma
  * Created by Redouane on 3/10/2018.
  */
 
+@SuppressWarnings("ALL")
 public class MovieViewHolder extends RecyclerView.ViewHolder {
-    private ImageView moviePoster;
-    private CardView movieCard;
+    private final ImageView moviePoster;
+    private final CardView movieCard;
 
     public MovieViewHolder(final View itemView) {
         super(itemView);

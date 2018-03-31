@@ -8,6 +8,7 @@ import java.util.List;
  * Created by Redouane on 2/18/2018.
  */
 
+@SuppressWarnings("ALL")
 public class Movie {
     @SerializedName("vote_count")
     private int voteCount;

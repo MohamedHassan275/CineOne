@@ -8,6 +8,7 @@ import java.util.ArrayList;
  * Created by Redouane on 2/18/2018.
  */
 
+@SuppressWarnings("ALL")
 public class MoviePageResult {
     @SerializedName("page")
     private int page;
