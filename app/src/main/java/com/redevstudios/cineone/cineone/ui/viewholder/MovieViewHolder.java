@@ -11,6 +11,9 @@ import com.redevstudios.cineone.cineone.model.Movie;
 import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.getMeasuredPosterHeight;
 import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.getScreenWidth;
 import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieImagePathBuilder;
@@ -21,20 +24,19 @@ import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieIma
 
 @SuppressWarnings("ALL")
 public class MovieViewHolder extends RecyclerView.ViewHolder {
-    private final ImageView moviePoster;
-    private final CardView movieCard;
+    @BindView(R.id.iv_movie_poster) ImageView mMoviePoster;
+    @BindView(R.id.cv_movie_card) CardView mMovieCard;
 
     public MovieViewHolder(final View itemView) {
         super(itemView);
-        moviePoster = itemView.findViewById(R.id.iv_movie_poster);
-        movieCard = itemView.findViewById(R.id.cv_movie_card);
+        ButterKnife.bind(this, itemView);
     }
 
     public void bind(final Movie movie, final MovieClickListener movieClickListener) {
 
-        movieCard.setLayoutParams(new ViewGroup.LayoutParams(getScreenWidth()/2, getMeasuredPosterHeight(getScreenWidth()/2)));
+        mMovieCard.setLayoutParams(new ViewGroup.LayoutParams(getScreenWidth()/2, getMeasuredPosterHeight(getScreenWidth()/2)));
 
-        Picasso.with(moviePoster.getContext()).load(movieImagePathBuilder(movie.getPosterPath())).placeholder(R.drawable.placeholder).fit().centerCrop().into(moviePoster);
+        Picasso.with(mMoviePoster.getContext()).load(movieImagePathBuilder(movie.getPosterPath())).placeholder(R.drawable.placeholder).fit().centerCrop().into(mMoviePoster);
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override

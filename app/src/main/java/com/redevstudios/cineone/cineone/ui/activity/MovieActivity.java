@@ -9,24 +9,26 @@ import android.widget.TextView;
 import com.redevstudios.cineone.cineone.R;
 import com.squareup.picasso.Picasso;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieImagePathBuilder;
 
 @SuppressWarnings("ALL")
 public class MovieActivity extends AppCompatActivity {
+    @BindView(R.id.movie_activity_title) TextView mMovieTitle;
+    @BindView(R.id.movie_activity_poster) ImageView mMoviePoster;
+    @BindView(R.id.movie_activity_overview) TextView mMovieOverview;
+    @BindView(R.id.movie_activity_release_date) TextView mMovieReleaseDate;
+    @BindView(R.id.movie_activity_rating) TextView mMovieRating;
 
-    private TextView mMovieTitle, mMovieOverview, mMovieReleaseDate, mMovieRating;
-    private ImageView mMoviePoster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie);
 
-        mMovieTitle = findViewById(R.id.movie_activity_title);
-        mMoviePoster = findViewById(R.id.movie_activity_poster);
-        mMovieOverview = findViewById(R.id.movie_activity_overview);
-        mMovieReleaseDate = findViewById(R.id.movie_activity_release_date);
-        mMovieRating = findViewById(R.id.movie_activity_rating);
+        ButterKnife.bind(this);
 
         Intent intent = getIntent();
         String title = intent.getStringExtra("movie_title");
