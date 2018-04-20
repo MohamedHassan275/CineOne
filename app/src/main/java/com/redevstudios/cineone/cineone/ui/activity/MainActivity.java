@@ -28,7 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
+    public static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
     private static int totalPages;
     private static int currentSortMode = 1;
     private Call<MoviePageResult> call;
@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onMovieClick(Movie movie) {
                             Intent intent = new Intent(MainActivity.this, MovieActivity.class);
+                            intent.putExtra("movie_id", movie.getId());
                             intent.putExtra("movie_title", movie.getTitle());
                             intent.putExtra("movie_vote_average", movie.getVoteAverage());
                             intent.putExtra("movie_vote_count", movie.getVoteCount());

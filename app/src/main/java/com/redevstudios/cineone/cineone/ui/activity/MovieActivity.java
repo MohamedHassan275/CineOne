@@ -3,15 +3,32 @@ package com.redevstudios.cineone.cineone.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.redevstudios.cineone.cineone.R;
+import com.redevstudios.cineone.cineone.model.Movie;
+import com.redevstudios.cineone.cineone.model.MoviePageResult;
+import com.redevstudios.cineone.cineone.model.MovieTrailer;
+import com.redevstudios.cineone.cineone.model.MovieTrailerResult;
+import com.redevstudios.cineone.cineone.network.GetMovieDataService;
+import com.redevstudios.cineone.cineone.network.GetMovieTrailerService;
+import com.redevstudios.cineone.cineone.network.RetrofitInstance;
+import com.redevstudios.cineone.cineone.ui.adapter.MovieAdapter;
+import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
+import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.API_KEY;
 import static com.redevstudios.cineone.cineone.ui.activity.MainActivity.movieImagePathBuilder;
 
 @SuppressWarnings("ALL")
@@ -31,6 +48,7 @@ public class MovieActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
+        int id = intent.getIntExtra("movie_id", 0);
         String title = intent.getStringExtra("movie_title");
         String overview = intent.getStringExtra("movie_overview");
         double userRating = intent.getDoubleExtra("movie_vote_average", 0.0);
@@ -39,6 +57,7 @@ public class MovieActivity extends AppCompatActivity {
         String posterPath = intent.getStringExtra("movie_poster_path");
         String backdropPath = intent.getStringExtra("movie_backdrop_path");
 
+        getTrailer(id);
         populateActivity(title, posterPath, overview, releaseDate, userRating);
 
     }
@@ -51,6 +70,25 @@ public class MovieActivity extends AppCompatActivity {
 
         String userRatingText = String.valueOf(userRating) + "/10";
         mMovieRating.setText(userRatingText);
+    }
+
+    private void getTrailer(int movieId) {
+        GetMovieTrailerService movieTrailerService = RetrofitInstance.getRetrofitInstance().create(GetMovieTrailerService.class);
+        Call<MovieTrailerResult> call = movieTrailerService.getTrailers(movieId, API_KEY);
+
+
+        call.enqueue(new Callback<MovieTrailerResult>() {
+            @Override
+            public void onResponse(Call<MovieTrailerResult> call, Response<MovieTrailerResult> response) {
+                Log.wtf("MovieActivity", "http://youtube.com/watch?v=" + response.body().getTrailerResult().get(0).getKey());
+
+            }
+
+            @Override
+            public void onFailure(Call<MovieTrailerResult> call, Throwable t) {
+                Toast.makeText(MovieActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
