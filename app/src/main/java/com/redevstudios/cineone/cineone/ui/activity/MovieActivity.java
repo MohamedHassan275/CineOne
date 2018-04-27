@@ -3,6 +3,8 @@ package com.redevstudios.cineone.cineone.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,11 +13,16 @@ import android.widget.Toast;
 import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.Movie;
 import com.redevstudios.cineone.cineone.model.MovieReviewPageResult;
+import com.redevstudios.cineone.cineone.model.MovieTrailer;
 import com.redevstudios.cineone.cineone.model.MovieTrailerPageResult;
 import com.redevstudios.cineone.cineone.network.GetMovieReviewService;
 import com.redevstudios.cineone.cineone.network.GetMovieTrailerService;
 import com.redevstudios.cineone.cineone.network.RetrofitInstance;
+import com.redevstudios.cineone.cineone.ui.adapter.TrailerAdapter;
+import com.redevstudios.cineone.cineone.ui.utils.TrailerClickListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +41,12 @@ public class MovieActivity extends AppCompatActivity {
     @BindView(R.id.movie_activity_release_date) TextView mMovieReleaseDate;
     @BindView(R.id.movie_activity_rating) TextView mMovieRating;
 
+    @BindView(R.id.rv_movie_trailers)
+    RecyclerView mTrailerRecyclerView;
+
+    private TrailerAdapter mTrailerAdapter;
+    private ArrayList<MovieTrailer> mMovieTrailers;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +54,8 @@ public class MovieActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie);
 
         ButterKnife.bind(this);
+
+        mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -71,7 +86,14 @@ public class MovieActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieTrailerPageResult>() {
             @Override
             public void onResponse(Call<MovieTrailerPageResult> call, Response<MovieTrailerPageResult> response) {
-                Log.wtf("MovieActivity", "http://youtube.com/watch?v=" + response.body().getTrailerResult().get(0).getKey());
+                mMovieTrailers = response.body().getTrailerResult();
+                mTrailerAdapter = new TrailerAdapter(mMovieTrailers, new TrailerClickListener() {
+                    @Override
+                    public void onMovieTrailerClick(MovieTrailer mMovieTrailer) {
+                        Toast.makeText(MovieActivity.this, mMovieTrailer.getName(), Toast.LENGTH_LONG).show();
+                    }
+                });
+                mTrailerRecyclerView.setAdapter(mTrailerAdapter);
 
             }
 
