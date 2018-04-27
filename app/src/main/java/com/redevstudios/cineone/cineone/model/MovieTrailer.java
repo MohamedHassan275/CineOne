@@ -2,9 +2,10 @@ package com.redevstudios.cineone.cineone.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class MovieTrailer {
+public class MovieTrailer implements Serializable {
     @SerializedName("id")
     private String id;
     @SerializedName("iso_639_1")

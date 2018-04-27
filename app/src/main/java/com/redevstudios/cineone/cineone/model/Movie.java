@@ -1,7 +1,10 @@
 package com.redevstudios.cineone.cineone.model;
 
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,7 +12,7 @@ import java.util.List;
  */
 
 @SuppressWarnings("ALL")
-public class Movie {
+public class Movie implements Serializable {
     @SerializedName("vote_count")
     private int voteCount;
     @SerializedName("id")

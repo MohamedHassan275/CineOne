@@ -115,14 +115,9 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onMovieClick(Movie movie) {
                             Intent intent = new Intent(MainActivity.this, MovieActivity.class);
-                            intent.putExtra("movie_id", movie.getId());
-                            intent.putExtra("movie_title", movie.getTitle());
-                            intent.putExtra("movie_vote_average", movie.getVoteAverage());
-                            intent.putExtra("movie_vote_count", movie.getVoteCount());
-                            intent.putExtra("movie_overview", movie.getOverview());
-                            intent.putExtra("movie_release_date", movie.getReleaseDate());
-                            intent.putExtra("movie_poster_path", movie.getPosterPath());
-                            intent.putExtra("movie_backdrop_path", movie.getBackdropPath());
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("movie", movie);
+                            intent.putExtras(bundle);
                             startActivity(intent);
                         }
                     });

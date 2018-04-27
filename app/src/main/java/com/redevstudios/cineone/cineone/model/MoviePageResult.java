@@ -2,6 +2,7 @@ package com.redevstudios.cineone.cineone.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -9,7 +10,7 @@ import java.util.ArrayList;
  */
 
 @SuppressWarnings("ALL")
-public class MoviePageResult {
+public class MoviePageResult implements Serializable {
     @SerializedName("page")
     private int page;
     @SerializedName("total_results")

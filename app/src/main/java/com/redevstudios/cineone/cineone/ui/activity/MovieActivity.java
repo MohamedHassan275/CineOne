@@ -48,27 +48,21 @@ public class MovieActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         Intent intent = getIntent();
-        int id = intent.getIntExtra("movie_id", 0);
-        String title = intent.getStringExtra("movie_title");
-        String overview = intent.getStringExtra("movie_overview");
-        double userRating = intent.getDoubleExtra("movie_vote_average", 0.0);
-        int userRatingCount = intent.getIntExtra("movie_vote_count",0);
-        String releaseDate = intent.getStringExtra("movie_release_date");
-        String posterPath = intent.getStringExtra("movie_poster_path");
-        String backdropPath = intent.getStringExtra("movie_backdrop_path");
+        Bundle bundle = intent.getExtras();
+        Movie mMovie = (Movie) bundle.getSerializable("movie");
 
-        getTrailer(id);
-        populateActivity(title, posterPath, overview, releaseDate, userRating);
+        getTrailer(mMovie.getId());
+        populateActivity(mMovie);
 
     }
 
-    private void populateActivity(String title, String posterPath, String overview, String releaseDate, double userRating){
-        Picasso.with(this).load(movieImagePathBuilder(posterPath)).into(mMoviePoster);
-        mMovieTitle.setText(title);
-        mMovieOverview.setText(overview);
-        mMovieReleaseDate.setText(releaseDate);
+    private void populateActivity(Movie mMovie){
+        Picasso.with(this).load(movieImagePathBuilder(mMovie.getPosterPath())).into(mMoviePoster);
+        mMovieTitle.setText(mMovie.getTitle());
+        mMovieOverview.setText(mMovie.getOverview());
+        mMovieReleaseDate.setText(mMovie.getReleaseDate());
 
-        String userRatingText = String.valueOf(userRating) + "/10";
+        String userRatingText = String.valueOf(mMovie.getVoteAverage()) + "/10";
         mMovieRating.setText(userRatingText);
     }
 
