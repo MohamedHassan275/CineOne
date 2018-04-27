@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class MovieTrailerResult implements Serializable {
+public class MovieTrailerPageResult implements Serializable {
     @SerializedName("id")
     private int id;
     @SerializedName("results")

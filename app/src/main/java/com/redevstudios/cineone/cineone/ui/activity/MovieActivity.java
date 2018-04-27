@@ -10,17 +10,12 @@ import android.widget.Toast;
 
 import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.Movie;
-import com.redevstudios.cineone.cineone.model.MoviePageResult;
-import com.redevstudios.cineone.cineone.model.MovieTrailer;
-import com.redevstudios.cineone.cineone.model.MovieTrailerResult;
-import com.redevstudios.cineone.cineone.network.GetMovieDataService;
+import com.redevstudios.cineone.cineone.model.MovieReviewPageResult;
+import com.redevstudios.cineone.cineone.model.MovieTrailerPageResult;
+import com.redevstudios.cineone.cineone.network.GetMovieReviewService;
 import com.redevstudios.cineone.cineone.network.GetMovieTrailerService;
 import com.redevstudios.cineone.cineone.network.RetrofitInstance;
-import com.redevstudios.cineone.cineone.ui.adapter.MovieAdapter;
-import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 import com.squareup.picasso.Picasso;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,6 +47,8 @@ public class MovieActivity extends AppCompatActivity {
         Movie mMovie = (Movie) bundle.getSerializable("movie");
 
         getTrailer(mMovie.getId());
+        getReviews(mMovie.getId());
+        
         populateActivity(mMovie);
 
     }
@@ -68,18 +65,36 @@ public class MovieActivity extends AppCompatActivity {
 
     private void getTrailer(int movieId) {
         GetMovieTrailerService movieTrailerService = RetrofitInstance.getRetrofitInstance().create(GetMovieTrailerService.class);
-        Call<MovieTrailerResult> call = movieTrailerService.getTrailers(movieId, API_KEY);
+        Call<MovieTrailerPageResult> call = movieTrailerService.getTrailers(movieId, API_KEY);
 
 
-        call.enqueue(new Callback<MovieTrailerResult>() {
+        call.enqueue(new Callback<MovieTrailerPageResult>() {
             @Override
-            public void onResponse(Call<MovieTrailerResult> call, Response<MovieTrailerResult> response) {
+            public void onResponse(Call<MovieTrailerPageResult> call, Response<MovieTrailerPageResult> response) {
                 Log.wtf("MovieActivity", "http://youtube.com/watch?v=" + response.body().getTrailerResult().get(0).getKey());
 
             }
 
             @Override
-            public void onFailure(Call<MovieTrailerResult> call, Throwable t) {
+            public void onFailure(Call<MovieTrailerPageResult> call, Throwable t) {
+                Toast.makeText(MovieActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getReviews(int movieId) {
+        GetMovieReviewService mGetMovieReviewService = RetrofitInstance.getRetrofitInstance().create(GetMovieReviewService.class);
+        Call<MovieReviewPageResult> call = mGetMovieReviewService.getReviews(movieId, API_KEY);
+
+
+        call.enqueue(new Callback<MovieReviewPageResult>() {
+            @Override
+            public void onResponse(Call<MovieReviewPageResult> call, Response<MovieReviewPageResult> response) {
+                Log.wtf("MovieActivity", response.body().getResults().get(0).getContent());
+            }
+
+            @Override
+            public void onFailure(Call<MovieReviewPageResult> call, Throwable t) {
                 Toast.makeText(MovieActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
             }
         });

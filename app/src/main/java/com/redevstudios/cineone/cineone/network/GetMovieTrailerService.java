@@ -1,8 +1,6 @@
 package com.redevstudios.cineone.cineone.network;
 
-import com.redevstudios.cineone.cineone.model.MovieTrailerResult;
-
-import java.util.ArrayList;
+import com.redevstudios.cineone.cineone.model.MovieTrailerPageResult;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -11,5 +9,5 @@ import retrofit2.http.Query;
 
 public interface GetMovieTrailerService {
     @GET("movie/{id}/videos")
-    Call<MovieTrailerResult> getTrailers(@Path("id") int movieId, @Query("api_key") String userkey);
+    Call<MovieTrailerPageResult> getTrailers(@Path("id") int movieId, @Query("api_key") String userkey);
 }
