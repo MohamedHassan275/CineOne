@@ -1,6 +1,7 @@
 package com.redevstudios.cineone.cineone.ui.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,12 +13,14 @@ import android.widget.Toast;
 
 import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.Movie;
+import com.redevstudios.cineone.cineone.model.MovieReview;
 import com.redevstudios.cineone.cineone.model.MovieReviewPageResult;
 import com.redevstudios.cineone.cineone.model.MovieTrailer;
 import com.redevstudios.cineone.cineone.model.MovieTrailerPageResult;
 import com.redevstudios.cineone.cineone.network.GetMovieReviewService;
 import com.redevstudios.cineone.cineone.network.GetMovieTrailerService;
 import com.redevstudios.cineone.cineone.network.RetrofitInstance;
+import com.redevstudios.cineone.cineone.ui.adapter.ReviewAdapter;
 import com.redevstudios.cineone.cineone.ui.adapter.TrailerAdapter;
 import com.redevstudios.cineone.cineone.ui.utils.TrailerClickListener;
 import com.squareup.picasso.Picasso;
@@ -43,10 +46,13 @@ public class MovieActivity extends AppCompatActivity {
 
     @BindView(R.id.rv_movie_trailers)
     RecyclerView mTrailerRecyclerView;
+    @BindView(R.id.rv_movie_reviews)
+    RecyclerView mReviewRecyclerView;
 
     private TrailerAdapter mTrailerAdapter;
     private ArrayList<MovieTrailer> mMovieTrailers;
-
+    private ArrayList<MovieReview> mMovieReviews;
+    private ReviewAdapter mReviewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +62,9 @@ public class MovieActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mTrailerRecyclerView.setNestedScrollingEnabled(false);
+        mReviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mReviewRecyclerView.setNestedScrollingEnabled(false);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
@@ -90,7 +99,8 @@ public class MovieActivity extends AppCompatActivity {
                 mTrailerAdapter = new TrailerAdapter(mMovieTrailers, new TrailerClickListener() {
                     @Override
                     public void onMovieTrailerClick(MovieTrailer mMovieTrailer) {
-                        Toast.makeText(MovieActivity.this, mMovieTrailer.getName(), Toast.LENGTH_LONG).show();
+                        Intent mTrailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + mMovieTrailer.getKey()));
+                        startActivity(mTrailerIntent);
                     }
                 });
                 mTrailerRecyclerView.setAdapter(mTrailerAdapter);
@@ -112,7 +122,9 @@ public class MovieActivity extends AppCompatActivity {
         call.enqueue(new Callback<MovieReviewPageResult>() {
             @Override
             public void onResponse(Call<MovieReviewPageResult> call, Response<MovieReviewPageResult> response) {
-                Log.wtf("MovieActivity", response.body().getResults().get(0).getContent());
+                mMovieReviews = response.body().getResults();
+                mReviewAdapter = new ReviewAdapter(mMovieReviews);
+                mReviewRecyclerView.setAdapter(mReviewAdapter);
             }
 
             @Override

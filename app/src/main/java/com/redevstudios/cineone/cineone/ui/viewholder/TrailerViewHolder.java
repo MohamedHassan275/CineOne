@@ -35,6 +35,7 @@ public class TrailerViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(final MovieTrailer mMovieTrailer, final TrailerClickListener mTrailerClickListener) {
+        mMovieTrailerName.setText(mMovieTrailer.getName());
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
