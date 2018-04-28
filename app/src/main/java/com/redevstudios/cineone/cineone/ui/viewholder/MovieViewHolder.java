@@ -33,7 +33,6 @@ public class MovieViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(final Movie movie, final MovieClickListener movieClickListener) {
-
         mMovieCard.setLayoutParams(new ViewGroup.LayoutParams(getScreenWidth()/2, getMeasuredPosterHeight(getScreenWidth()/2)));
 
         Picasso.with(mMoviePoster.getContext()).load(movieImagePathBuilder(movie.getPosterPath())).placeholder(R.drawable.placeholder).fit().centerCrop().into(mMoviePoster);
