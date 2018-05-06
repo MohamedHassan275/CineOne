@@ -34,6 +34,7 @@ import com.redevstudios.cineone.cineone.ui.data.FavoriteContract;
 import com.redevstudios.cineone.cineone.ui.utils.TrailerClickListener;
 import com.squareup.picasso.Picasso;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -75,33 +76,59 @@ public class MovieActivity extends AppCompatActivity {
         mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mTrailerRecyclerView.setNestedScrollingEnabled(false);
 
-        Intent intent = getIntent();
-        Bundle bundle = intent.getExtras();
-        mMovie = (Movie) bundle.getSerializable("movie");
-
-        if(isFavorited(mMovie.getId())){
-            mFavoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star_border_white_36dp));
+        if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            Bundle bundle = intent.getExtras();
+            mMovie = (Movie) bundle.getSerializable("movie");
+            populateActivity(mMovie);
+            if(isNetworkAvailable()){
+                getReviews(mMovie.getId());
+                getTrailers(mMovie.getId());
+            }
         } else{
-            mFavoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star_white_36dp));
+            mMovie = (Movie) savedInstanceState.getSerializable("movie");
+            populateActivity(mMovie);
+            if(isNetworkAvailable()){
+               mMovieReviews = (ArrayList<MovieReview>) savedInstanceState.getSerializable("movie_reviews");
+               populateReviews(mMovieReviews);
+
+               mMovieTrailers = (ArrayList<MovieTrailer>) savedInstanceState.getSerializable("movie_trailers");
+               populateTrailers(mMovieTrailers);
+            }
         }
-
-        populateActivity(mMovie);
-
     }
 
     private void populateActivity(Movie mMovie){
+        updateFabDrawable();
         Picasso.with(this).load(movieImagePathBuilder(mMovie.getPosterPath())).into(mMoviePoster);
         mMovieTitle.setText(mMovie.getTitle());
         mMovieOverview.setText(mMovie.getOverview());
         mMovieReleaseDate.setText(mMovie.getReleaseDate());
         String userRatingText = String.valueOf(mMovie.getVoteAverage()) + "/10";
         mMovieRating.setText(userRatingText);
+    }
 
-        if(isNetworkAvailable()){
-            getReviews(mMovie.getId());
-            getTrailers(mMovie.getId());
+    private void populateReviews(ArrayList<MovieReview> mMovieReviews){
+        if(mMovieReviews.size() > 0){
+            mReviewsLabel.setVisibility(View.VISIBLE);
         }
     }
+
+    private void populateTrailers(ArrayList<MovieTrailer> mMovieTrailers){
+        if(mMovieTrailers.size() > 0){
+            mMovieTrailerLabel.setVisibility(View.VISIBLE);
+            mTrailerRecyclerView.setVisibility(View.VISIBLE);
+            mTrailerAdapter = new TrailerAdapter(mMovieTrailers, new TrailerClickListener() {
+                @Override
+                public void onMovieTrailerClick(MovieTrailer mMovieTrailer) {
+                    Intent mTrailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + mMovieTrailer.getKey()));
+                    startActivity(mTrailerIntent);
+                }
+            });
+            mTrailerRecyclerView.setAdapter(mTrailerAdapter);
+        }
+    }
+
 
     private void getTrailers(int movieId) {
         GetMovieTrailerService movieTrailerService = RetrofitInstance.getRetrofitInstance().create(GetMovieTrailerService.class);
@@ -112,18 +139,7 @@ public class MovieActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieTrailerPageResult> call, Response<MovieTrailerPageResult> response) {
                 mMovieTrailers = response.body().getTrailerResult();
-                if(mMovieTrailers.size() > 0){
-                    mMovieTrailerLabel.setVisibility(View.VISIBLE);
-                    mTrailerRecyclerView.setVisibility(View.VISIBLE);
-                    mTrailerAdapter = new TrailerAdapter(mMovieTrailers, new TrailerClickListener() {
-                        @Override
-                        public void onMovieTrailerClick(MovieTrailer mMovieTrailer) {
-                            Intent mTrailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + mMovieTrailer.getKey()));
-                            startActivity(mTrailerIntent);
-                        }
-                    });
-                    mTrailerRecyclerView.setAdapter(mTrailerAdapter);
-                }
+                populateTrailers(mMovieTrailers);
             }
 
             @Override
@@ -142,9 +158,7 @@ public class MovieActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieReviewPageResult> call, Response<MovieReviewPageResult> response) {
                 mMovieReviews = response.body().getResults();
-                if(mMovieReviews.size() > 0){
-                    mReviewsLabel.setVisibility(View.VISIBLE);
-                }
+               populateReviews(mMovieReviews);
             }
 
             @Override
@@ -168,9 +182,15 @@ public class MovieActivity extends AppCompatActivity {
         if(!isFavorited(mMovie.getId())){
             getContentResolver().
                     insert(FavoriteContract.FavoriteEntry.CONTENT_URI, values);
+            Toast.makeText(this, R.string.movie_added_to_favorites, Toast.LENGTH_SHORT).show();
         }else{
-            Toast.makeText(this, "Already favorited!", Toast.LENGTH_SHORT).show();
+            getContentResolver().delete(FavoriteContract.FavoriteEntry.CONTENT_URI,
+                    "movie_id=?",
+                    new String[]{String.valueOf(mMovie.getId())});
+            Toast.makeText(this, R.string.movie_removed_from_favorites, Toast.LENGTH_SHORT).show();
         }
+
+        updateFabDrawable();
 
 
     }
@@ -196,5 +216,23 @@ public class MovieActivity extends AppCompatActivity {
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void updateFabDrawable(){
+        if(isFavorited(mMovie.getId())){
+            mFavoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star_border_white_36dp));
+        } else{
+            mFavoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star_white_36dp));
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable("movie", mMovie);
+        if(isNetworkAvailable()){
+            outState.putSerializable("movie_reviews", mMovieReviews);
+            outState.putSerializable("movie_trailers", mMovieTrailers);
+        }
     }
 }

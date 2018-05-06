@@ -102,6 +102,14 @@ public class FavoriteProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        final SQLiteDatabase db = mFavoriteHelper.getWritableDatabase();
+        switch (sUriMatcher.match(uri)) {
+            case CODE_FAVORITE:
+                db.delete(FavoriteContract.FavoriteEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+        }
+
         return 0;
     }
 
