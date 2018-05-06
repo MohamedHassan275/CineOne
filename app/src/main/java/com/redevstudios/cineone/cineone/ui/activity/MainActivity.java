@@ -1,16 +1,24 @@
 package com.redevstudios.cineone.cineone.ui.activity;
 
+import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.redevstudios.cineone.cineone.BuildConfig;
@@ -27,6 +35,9 @@ import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,17 +48,24 @@ public class MainActivity extends AppCompatActivity {
     private int totalPages;
     private int currentSortMode = 1;
     private Call<MoviePageResult> call;
-    private RecyclerView recyclerView;
     private List<Movie> movieResults;
     private MovieAdapter movieAdapter;
 
+    @BindView(R.id.rv_movies) RecyclerView recyclerView;
+    @BindView(R.id.tv_no_internet_error) ConstraintLayout mNoInternetMessage;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        recyclerView = findViewById(R.id.rv_movies);
+        ButterKnife.bind(this);
+
+        if(!isNetworkAvailable()){
+            recyclerView.setVisibility(View.GONE);
+            mNoInternetMessage.setVisibility(View.VISIBLE);
+        }
+
         GridLayoutManager manager = new GridLayoutManager(this, 2);
         manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
@@ -206,6 +224,19 @@ public class MainActivity extends AppCompatActivity {
         cursor.close();
 
         return movieList;
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    @OnClick(R.id.tv_no_internet_error_refresh)
+    public void refreshActivity(){
+        finish();
+        startActivity(getIntent());
     }
 
 }
