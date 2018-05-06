@@ -44,7 +44,7 @@ public class ReviewActivity extends AppCompatActivity {
         mMovieReviews = (ArrayList<MovieReview>) bundle.getSerializable("reviews");
         String mMovieTitle = bundle.getString("movie_title");
 
-        setTitle(mMovieTitle + " User Reviews");
+        setTitle(mMovieTitle + getString(R.string.review_activity_title));
 
         ReviewAdapter mReviewsAdapter = new ReviewAdapter(mMovieReviews);
         mReviewsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
