@@ -41,12 +41,12 @@ public class FavoriteProvider extends ContentProvider {
         Cursor cursor;
         switch (sUriMatcher.match(uri)) {
             case CODE_FAVORITE_WITH_ID: {
-                String _ID = uri.getLastPathSegment();
-                String[] selectionArguments = new String[]{_ID};
+                String ID = uri.getLastPathSegment();
+                String[] selectionArguments = new String[]{ID};
                 cursor = mFavoriteHelper.getReadableDatabase().query(
                         FavoriteContract.FavoriteEntry.TABLE_NAME,
                         projection,
-                        FavoriteContract.FavoriteEntry._ID + " = ? ",
+                        FavoriteContract.FavoriteEntry.MOVIE_ID + " = ? ",
                         selectionArguments,
                         null,
                         null,
@@ -87,12 +87,13 @@ public class FavoriteProvider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case CODE_FAVORITE:
 
-                long _id = db.insert(FavoriteContract.FavoriteEntry.TABLE_NAME, null, values);
-                if (_id != -1) {
+                db.insert(FavoriteContract.FavoriteEntry.TABLE_NAME, null, values);
+                long id = Integer.parseInt(values.get("movie_id").toString());
+                if (id != -1) {
                     getContext().getContentResolver().notifyChange(uri, null);
                 }
 
-                return FavoriteContract.FavoriteEntry.buildFavoriteUriWithId(_id);
+                return FavoriteContract.FavoriteEntry.buildFavoriteUriWithId(id);
 
             default:
                 return null;

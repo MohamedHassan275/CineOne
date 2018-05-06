@@ -18,7 +18,7 @@ public class FavoriteHelper extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_FAVORITE_TABLE =
                 "CREATE TABLE " + FavoriteContract.FavoriteEntry.TABLE_NAME + " (" +
-                        FavoriteContract.FavoriteEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        FavoriteContract.FavoriteEntry.MOVIE_ID       + " INTEGER UNIQUE PRIMARY KEY NOT NULL,"                  +
 
                         FavoriteContract.FavoriteEntry.MOVIE_TITLE       + " TEXT NOT NULL, "                 +
 
@@ -29,8 +29,6 @@ public class FavoriteHelper extends SQLiteOpenHelper{
                         FavoriteContract.FavoriteEntry.MOVIE_VOTE_AVERAGE       + " DOUBLE NOT NULL,"                  +
 
                         FavoriteContract.FavoriteEntry.MOVIE_RELEASE_DATE       + " TEXT NOT NULL,"                  +
-
-                        FavoriteContract.FavoriteEntry.MOVIE_FAVORED       + " INTEGER NOT NULL,"                  +
 
                         FavoriteContract.FavoriteEntry.MOVIE_POSTER_PATH     + " TEXT NOT NULL);";
 

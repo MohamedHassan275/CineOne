@@ -1,12 +1,13 @@
 package com.redevstudios.cineone.cineone.ui.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -18,9 +19,11 @@ import com.redevstudios.cineone.cineone.model.MoviePageResult;
 import com.redevstudios.cineone.cineone.network.GetMovieDataService;
 import com.redevstudios.cineone.cineone.network.RetrofitInstance;
 import com.redevstudios.cineone.cineone.ui.adapter.MovieAdapter;
+import com.redevstudios.cineone.cineone.ui.data.FavoriteContract;
 import com.redevstudios.cineone.cineone.ui.utils.EndlessRecyclerViewScrollListener;
 import com.redevstudios.cineone.cineone.ui.utils.MovieClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -29,8 +32,9 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     public static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
-    private static int totalPages;
-    private static int currentSortMode = 1;
+    private static final int FIRST_PAGE = 1;
+    private int totalPages;
+    private int currentSortMode = 1;
     private Call<MoviePageResult> call;
     private RecyclerView recyclerView;
     private List<Movie> movieResults;
@@ -51,20 +55,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         recyclerView.setLayoutManager(manager);
-
-        loadPage(1);
-
         EndlessRecyclerViewScrollListener scrollListener = new EndlessRecyclerViewScrollListener(manager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                if ((page + 1) <= totalPages) {
+                if ((page + 1) <= totalPages && currentSortMode != 3) {
                     loadPage(page + 1);
                 }
             }
         };
 
         recyclerView.addOnScrollListener(scrollListener);
+
+        loadPage(FIRST_PAGE);
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,8 +88,28 @@ public class MainActivity extends AppCompatActivity {
             case R.id.sort_by_top:
                 currentSortMode = 2;
                 break;
+            case R.id.sort_by_favorites:
+                currentSortMode = 3;
+                break;
         }
-        loadPage(1);
+        if(currentSortMode != 3){
+            loadPage(FIRST_PAGE);
+        } else {
+            ArrayList<Movie> favoriteMovies = getFavoriteMovies();
+
+            movieAdapter = new MovieAdapter(favoriteMovies, new MovieClickListener() {
+                @Override
+                public void onMovieClick(Movie movie) {
+                    Intent intent = new Intent(MainActivity.this, MovieActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("movie", movie);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
+                }
+            });
+            recyclerView.setAdapter(movieAdapter);
+        }
+
         return super.onOptionsItemSelected(item);
 
     }
@@ -101,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 call = movieDataService.getTopRatedMovies(page, API_KEY);
                 break;
         }
-
 
         call.enqueue(new Callback<MoviePageResult>() {
             @Override
@@ -150,6 +173,38 @@ public class MainActivity extends AppCompatActivity {
         return "https://image.tmdb.org/t/p/" +
                 "w500" +
                 imagePath;
+    }
+
+    private ArrayList<Movie> getFavoriteMovies(){
+        ArrayList<Movie> movieList = new ArrayList<>();
+        Cursor cursor = getContentResolver()
+                .query(FavoriteContract.FavoriteEntry.CONTENT_URI,null,null,null,null);
+
+        if (cursor.moveToFirst()){
+            do{
+                Movie movie = new Movie();
+
+                int id = cursor.getInt(cursor.getColumnIndex("movie_id"));
+                String movieTitle = cursor.getString(cursor.getColumnIndex("movie_title"));
+                String movieOverview = cursor.getString(cursor.getColumnIndex("movie_overview"));
+                double movieVoteAverage = cursor.getDouble(cursor.getColumnIndex("movie_vote_average"));
+                String movieReleaseDate = cursor.getString(cursor.getColumnIndex("movie_release_date"));
+                String moviePosterPath = cursor.getString(cursor.getColumnIndex("movie_poster_path"));
+
+                movie.setId(id);
+                movie.setTitle(movieTitle);
+                movie.setOverview(movieOverview);
+                movie.setVoteAverage(movieVoteAverage);
+                movie.setReleaseDate(movieReleaseDate);
+                movie.setPosterPath(moviePosterPath);
+
+                movieList.add(movie);
+
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return movieList;
     }
 
 }

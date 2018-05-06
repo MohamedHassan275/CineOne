@@ -8,11 +8,7 @@ import android.view.ViewGroup;
 
 import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.MovieReview;
-import com.redevstudios.cineone.cineone.model.MovieTrailer;
-import com.redevstudios.cineone.cineone.ui.utils.TrailerClickListener;
 import com.redevstudios.cineone.cineone.ui.viewholder.ReviewViewHolder;
-import com.redevstudios.cineone.cineone.ui.viewholder.TrailerViewHolder;
-
 import java.util.ArrayList;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
@@ -26,7 +22,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewViewHolder> {
     @NonNull
     @Override
     public ReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_trailer_card_view, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_review_card_view, parent, false);
         return new ReviewViewHolder(view);
     }
 

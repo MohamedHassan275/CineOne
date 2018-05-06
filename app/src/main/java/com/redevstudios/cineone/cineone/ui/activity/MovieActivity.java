@@ -1,12 +1,20 @@
 package com.redevstudios.cineone.cineone.ui.activity;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +30,7 @@ import com.redevstudios.cineone.cineone.network.GetMovieTrailerService;
 import com.redevstudios.cineone.cineone.network.RetrofitInstance;
 import com.redevstudios.cineone.cineone.ui.adapter.ReviewAdapter;
 import com.redevstudios.cineone.cineone.ui.adapter.TrailerAdapter;
+import com.redevstudios.cineone.cineone.ui.data.FavoriteContract;
 import com.redevstudios.cineone.cineone.ui.utils.TrailerClickListener;
 import com.squareup.picasso.Picasso;
 
@@ -29,6 +38,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,16 +53,17 @@ public class MovieActivity extends AppCompatActivity {
     @BindView(R.id.movie_activity_overview) TextView mMovieOverview;
     @BindView(R.id.movie_activity_release_date) TextView mMovieReleaseDate;
     @BindView(R.id.movie_activity_rating) TextView mMovieRating;
+    @BindView(R.id.movie_activity_favorite) FloatingActionButton mFavoriteButton;
+    @BindView(R.id.movie_activity_trailer_label) TextView mMovieTrailerLabel;
+    @BindView(R.id.movie_activity_read_reviews) TextView mReviewsLabel;
 
-    @BindView(R.id.rv_movie_trailers)
-    RecyclerView mTrailerRecyclerView;
-    @BindView(R.id.rv_movie_reviews)
-    RecyclerView mReviewRecyclerView;
+    @BindView(R.id.rv_movie_trailers) RecyclerView mTrailerRecyclerView;
 
     private TrailerAdapter mTrailerAdapter;
     private ArrayList<MovieTrailer> mMovieTrailers;
     private ArrayList<MovieReview> mMovieReviews;
     private ReviewAdapter mReviewAdapter;
+    private Movie mMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,16 +74,17 @@ public class MovieActivity extends AppCompatActivity {
 
         mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mTrailerRecyclerView.setNestedScrollingEnabled(false);
-        mReviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mReviewRecyclerView.setNestedScrollingEnabled(false);
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        Movie mMovie = (Movie) bundle.getSerializable("movie");
+        mMovie = (Movie) bundle.getSerializable("movie");
 
-        getTrailer(mMovie.getId());
-        getReviews(mMovie.getId());
-        
+        if(isFavorited(mMovie.getId())){
+            mFavoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star_border_white_36dp));
+        } else{
+            mFavoriteButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_star_white_36dp));
+        }
+
         populateActivity(mMovie);
 
     }
@@ -82,12 +94,16 @@ public class MovieActivity extends AppCompatActivity {
         mMovieTitle.setText(mMovie.getTitle());
         mMovieOverview.setText(mMovie.getOverview());
         mMovieReleaseDate.setText(mMovie.getReleaseDate());
-
         String userRatingText = String.valueOf(mMovie.getVoteAverage()) + "/10";
         mMovieRating.setText(userRatingText);
+
+        if(isNetworkAvailable()){
+            getReviews(mMovie.getId());
+            getTrailers(mMovie.getId());
+        }
     }
 
-    private void getTrailer(int movieId) {
+    private void getTrailers(int movieId) {
         GetMovieTrailerService movieTrailerService = RetrofitInstance.getRetrofitInstance().create(GetMovieTrailerService.class);
         Call<MovieTrailerPageResult> call = movieTrailerService.getTrailers(movieId, API_KEY);
 
@@ -96,15 +112,18 @@ public class MovieActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieTrailerPageResult> call, Response<MovieTrailerPageResult> response) {
                 mMovieTrailers = response.body().getTrailerResult();
-                mTrailerAdapter = new TrailerAdapter(mMovieTrailers, new TrailerClickListener() {
-                    @Override
-                    public void onMovieTrailerClick(MovieTrailer mMovieTrailer) {
-                        Intent mTrailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + mMovieTrailer.getKey()));
-                        startActivity(mTrailerIntent);
-                    }
-                });
-                mTrailerRecyclerView.setAdapter(mTrailerAdapter);
-
+                if(mMovieTrailers.size() > 0){
+                    mMovieTrailerLabel.setVisibility(View.VISIBLE);
+                    mTrailerRecyclerView.setVisibility(View.VISIBLE);
+                    mTrailerAdapter = new TrailerAdapter(mMovieTrailers, new TrailerClickListener() {
+                        @Override
+                        public void onMovieTrailerClick(MovieTrailer mMovieTrailer) {
+                            Intent mTrailerIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + mMovieTrailer.getKey()));
+                            startActivity(mTrailerIntent);
+                        }
+                    });
+                    mTrailerRecyclerView.setAdapter(mTrailerAdapter);
+                }
             }
 
             @Override
@@ -123,8 +142,9 @@ public class MovieActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieReviewPageResult> call, Response<MovieReviewPageResult> response) {
                 mMovieReviews = response.body().getResults();
-                mReviewAdapter = new ReviewAdapter(mMovieReviews);
-                mReviewRecyclerView.setAdapter(mReviewAdapter);
+                if(mMovieReviews.size() > 0){
+                    mReviewsLabel.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -134,5 +154,47 @@ public class MovieActivity extends AppCompatActivity {
         });
     }
 
+    @OnClick(R.id.movie_activity_favorite)
+    public void setFavoriteMovie(){
+        ContentValues values = new ContentValues();
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_ID, mMovie.getId());
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_TITLE, mMovie.getTitle());
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_OVERVIEW, mMovie.getOverview());
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_VOTE_COUNT, mMovie.getVoteCount());
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_VOTE_AVERAGE, mMovie.getVoteAverage());
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_RELEASE_DATE, mMovie.getReleaseDate());
+        values.put(FavoriteContract.FavoriteEntry.MOVIE_POSTER_PATH, mMovie.getPosterPath());
 
+        if(!isFavorited(mMovie.getId())){
+            getContentResolver().
+                    insert(FavoriteContract.FavoriteEntry.CONTENT_URI, values);
+        }else{
+            Toast.makeText(this, "Already favorited!", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+    private boolean isFavorited(int id){
+        Cursor cursor = getContentResolver()
+                .query(FavoriteContract.FavoriteEntry.buildFavoriteUriWithId(id),null,null,null,null);
+        return cursor.getCount()> 0;
+    }
+
+    @OnClick(R.id.movie_activity_read_reviews)
+    public void readReviews(){
+        Intent readReviews = new Intent(this, ReviewActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("reviews", mMovieReviews);
+        bundle.putString("movie_title", mMovie.getTitle());
+        readReviews.putExtras(bundle);
+        startActivity(readReviews);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 }

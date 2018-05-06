@@ -3,7 +3,9 @@ package com.redevstudios.cineone.cineone.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class MovieReview {
+import java.io.Serializable;
+
+public class MovieReview implements Serializable{
     @SerializedName("author")
     @Expose
     private String author;

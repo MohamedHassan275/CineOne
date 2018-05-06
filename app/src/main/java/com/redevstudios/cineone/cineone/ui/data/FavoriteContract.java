@@ -11,14 +11,14 @@ public class FavoriteContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final class FavoriteEntry implements BaseColumns {
-        static String TABLE_NAME = "favorites";
-        static String MOVIE_TITLE = "movie_title";
-        static String MOVIE_OVERVIEW = "movie_overview";
-        static String MOVIE_VOTE_COUNT = "movie_vote_count";
-        static String MOVIE_VOTE_AVERAGE = "movie_vote_average";
-        static String MOVIE_RELEASE_DATE = "movie_release_date";
-        static String MOVIE_FAVORED = "movie_favored";
-        static String MOVIE_POSTER_PATH = "movie_poster_path";
+        public static String TABLE_NAME = "favorites";
+        public static String MOVIE_ID = "movie_id";
+        public static String MOVIE_TITLE = "movie_title";
+        public static String MOVIE_OVERVIEW = "movie_overview";
+        public static String MOVIE_VOTE_COUNT = "movie_vote_count";
+        public static String MOVIE_VOTE_AVERAGE = "movie_vote_average";
+        public static String MOVIE_RELEASE_DATE = "movie_release_date";
+        public static String MOVIE_POSTER_PATH = "movie_poster_path";
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(TABLE_NAME)

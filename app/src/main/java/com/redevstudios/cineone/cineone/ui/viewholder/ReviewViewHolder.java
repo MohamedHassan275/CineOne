@@ -7,17 +7,15 @@ import android.widget.TextView;
 
 import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.MovieReview;
-import com.redevstudios.cineone.cineone.model.MovieTrailer;
-import com.redevstudios.cineone.cineone.ui.utils.TrailerClickListener;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ReviewViewHolder extends RecyclerView.ViewHolder {
-    @BindView(R.id.tv_movie_trailer_name)
-    TextView mMovieTrailerName;
-    @BindView(R.id.cv_movie_trailer_card)
-    CardView mMovieCard;
+    @BindView(R.id.movie_review_username)
+    TextView mMovieReviewAuthor;
+    @BindView(R.id.movie_review_content)
+    TextView mMovieReviewContent;
 
     public ReviewViewHolder(final View itemView) {
         super(itemView);
@@ -25,6 +23,7 @@ public class ReviewViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(final MovieReview mMovieReview) {
-        mMovieTrailerName.setText(mMovieReview.getContent());
+        mMovieReviewAuthor.setText(mMovieReview.getAuthor());
+        mMovieReviewContent.setText(mMovieReview.getContent());
     }
 }
