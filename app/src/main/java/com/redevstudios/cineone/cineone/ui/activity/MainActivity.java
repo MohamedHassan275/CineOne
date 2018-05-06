@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.redevstudios.cineone.cineone.BuildConfig;
 import com.redevstudios.cineone.cineone.R;
 import com.redevstudios.cineone.cineone.model.Movie;
 import com.redevstudios.cineone.cineone.model.MoviePageResult;
@@ -31,7 +32,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String API_KEY = "5806c9d1af02adb8387c8dc5b78eeab5";
+    public static final String API_KEY = BuildConfig.API_KEY;
     private static final int FIRST_PAGE = 1;
     private int totalPages;
     private int currentSortMode = 1;
