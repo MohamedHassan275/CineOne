@@ -1,15 +1,13 @@
 package com.redevstudios.cineone.cineone.ui.activity;
 
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.redevstudios.cineone.cineone.BuildConfig;
@@ -147,10 +144,12 @@ public class MainActivity extends AppCompatActivity {
 
         call.enqueue(new Callback<MoviePageResult>() {
             @Override
-            public void onResponse(Call<MoviePageResult> call, Response<MoviePageResult> response) {
+            public void onResponse(@NonNull Call<MoviePageResult> call, @NonNull Response<MoviePageResult> response) {
 
                 if(page == 1) {
+                    assert response.body() != null;
                     movieResults = response.body().getMovieResult();
+                    assert response.body() != null;
                     totalPages = response.body().getTotalPages();
 
                     movieAdapter = new MovieAdapter(movieResults, new MovieClickListener() {
@@ -165,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                     recyclerView.setAdapter(movieAdapter);
                 } else {
+                    assert response.body() != null;
                     List<Movie> movies = response.body().getMovieResult();
                     for(Movie movie : movies){
                         movieResults.add(movie);
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MoviePageResult> call, Throwable t) {
+            public void onFailure(@NonNull Call<MoviePageResult> call, @NonNull Throwable t) {
                 Toast.makeText(MainActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
             }
         });
@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = getContentResolver()
                 .query(FavoriteContract.FavoriteEntry.CONTENT_URI,null,null,null,null);
 
+        assert cursor != null;
         if (cursor.moveToFirst()){
             do{
                 Movie movie = new Movie();
@@ -229,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connectivityManager != null;
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }

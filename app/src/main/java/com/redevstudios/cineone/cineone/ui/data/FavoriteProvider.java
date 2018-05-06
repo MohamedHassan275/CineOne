@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+@SuppressWarnings("WeakerAccess")
 public class FavoriteProvider extends ContentProvider {
     private FavoriteHelper mFavoriteHelper;
 

@@ -1,18 +1,14 @@
 package com.redevstudios.cineone.cineone.ui.activity;
 
 import android.content.Intent;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
-import android.widget.Adapter;
-import android.widget.Toolbar;
 
 import com.redevstudios.cineone.cineone.R;
-import com.redevstudios.cineone.cineone.model.Movie;
 import com.redevstudios.cineone.cineone.model.MovieReview;
 import com.redevstudios.cineone.cineone.ui.adapter.ReviewAdapter;
 
@@ -21,12 +17,11 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+@SuppressWarnings("unchecked")
 public class ReviewActivity extends AppCompatActivity {
 
     @BindView(R.id.rv_movie_reviews)
     RecyclerView mReviewsRecyclerView;
-
-    private ArrayList<MovieReview> mMovieReviews;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +36,8 @@ public class ReviewActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
-        mMovieReviews = (ArrayList<MovieReview>) bundle.getSerializable("reviews");
+        assert bundle != null;
+        ArrayList<MovieReview> mMovieReviews = (ArrayList<MovieReview>) bundle.getSerializable("reviews");
         String mMovieTitle = bundle.getString("movie_title");
 
         setTitle(mMovieTitle + getString(R.string.review_activity_title));

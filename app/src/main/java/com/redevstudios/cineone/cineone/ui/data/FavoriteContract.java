@@ -11,7 +11,7 @@ public class FavoriteContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     public static final class FavoriteEntry implements BaseColumns {
-        public static String TABLE_NAME = "favorites";
+        public static final String TABLE_NAME = "favorites";
         public static String MOVIE_ID = "movie_id";
         public static String MOVIE_TITLE = "movie_title";
         public static String MOVIE_OVERVIEW = "movie_overview";
